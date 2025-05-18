@@ -1,0 +1,14 @@
+services:
+  - type: cron
+    name: ebay-notify
+    env: python
+    schedule: "0 * * * *"  # 毎時00分
+    buildCommand: ""
+    startCommand: "python main.py"
+    envVars:
+      - key: EBAY_APP_ID
+        sync: false
+      - key: DISCORD_WEBHOOK_URL
+        sync: false
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        sync: false
