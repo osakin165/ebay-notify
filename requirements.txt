@@ -2,3 +2,5 @@ pandas
 requests
 firebase-admin
 openpyxl
+gspread
+google-auth
