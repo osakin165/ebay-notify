@@ -1,4 +1,4 @@
-from excel_reader import load_wantlist
+from sheets_reader import load_wantlist
 from ebay_client import search_ebay_items
 from notifier.discord import send_discord_notification
 from notifier.gmail import send_gmail_notification
