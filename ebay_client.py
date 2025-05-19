@@ -1,8 +1,15 @@
 import requests
+import re
 from config import EBAY_APP_ID
+
+def clean_query(query):
+    # 危険な記号を除去
+    return re.sub(r"[\"'&]", "", query)
 
 def search_ebay_items(query):
     url = "https://svcs.ebay.com/services/search/FindingService/v1"
+
+    safe_query = clean_query(query)
 
     params = {
         "OPERATION-NAME": "findItemsByKeywords",
@@ -10,7 +17,7 @@ def search_ebay_items(query):
         "SECURITY-APPNAME": EBAY_APP_ID,
         "RESPONSE-DATA-FORMAT": "JSON",
         "REST-PAYLOAD": "true",
-        "keywords": query,  # ← quote() は削除！
+        "keywords": safe_query,
         "paginationInput.entriesPerPage": 5,
         "GLOBAL-ID": "EBAY-US",
         "categoryId": "11233"
