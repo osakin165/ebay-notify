@@ -3,7 +3,7 @@ import re
 from config import EBAY_APP_ID
 
 def clean_query(query):
-    # 危険な記号を除去
+    # 特殊文字を削除（' " & など）
     return re.sub(r"[\"'&]", "", query)
 
 def search_ebay_items(query):
