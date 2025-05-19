@@ -21,8 +21,9 @@ def load_wantlist():
         title = row.get("TITLE")
         if artist and title:
             wantlist.append({
-                "artist": artist.strip(),
-                "title": title.strip()
+                "artist": str(artist).strip(),
+                "title": str(title).strip()
             })
+
 
     return wantlist
