@@ -3,12 +3,13 @@ import re
 from config import EBAY_APP_ID
 
 def clean_query(query):
-    # 特殊文字を削除（' " & など）
+    # エラーを引き起こす記号を除去
     return re.sub(r"[\"'&]", "", query)
 
 def search_ebay_items(query):
     url = "https://svcs.ebay.com/services/search/FindingService/v1"
 
+    # 🔴 ここが重要：検索キーワードを安全にクリーニング
     safe_query = clean_query(query)
 
     params = {
