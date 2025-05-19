@@ -3,13 +3,13 @@ import re
 from config import EBAY_APP_ID
 
 def clean_query(query):
-    # eBay APIでエラーを引き起こす可能性がある記号を除去
-    return re.sub(r"[\"'&/\\%+]", "", query)
+    # エラーを引き起こす記号を除去し、文字数も制限
+    query = re.sub(r"[\"'&/\\%+]", "", query)
+    return query[:50]
 
 def search_ebay_items(query):
     url = "https://svcs.ebay.com/services/search/FindingService/v1"
 
-    # クリーンなキーワードに変換
     safe_query = clean_query(query)
 
     params = {
@@ -24,8 +24,16 @@ def search_ebay_items(query):
         "categoryId": "11233"
     }
 
-    response = requests.get(url, params=params)
-    response.raise_for_status()
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        print(f"[ERROR] Skipped keyword '{safe_query}' due to HTTPError: {e}")
+        return []
+    except Exception as e:
+        print(f"[ERROR] Unexpected error for '{safe_query}': {e}")
+        return []
+
     data = response.json()
 
     results = []
