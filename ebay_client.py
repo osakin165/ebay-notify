@@ -1,11 +1,8 @@
 import requests
-import urllib.parse
 from config import EBAY_APP_ID
 
 def search_ebay_items(query):
     url = "https://svcs.ebay.com/services/search/FindingService/v1"
-
-    encoded_query = urllib.parse.quote(query)
 
     params = {
         "OPERATION-NAME": "findItemsByKeywords",
@@ -13,7 +10,7 @@ def search_ebay_items(query):
         "SECURITY-APPNAME": EBAY_APP_ID,
         "RESPONSE-DATA-FORMAT": "JSON",
         "REST-PAYLOAD": "true",
-        "keywords": encoded_query,
+        "keywords": query,  # ← quote() は削除！
         "paginationInput.entriesPerPage": 5,
         "GLOBAL-ID": "EBAY-US",
         "categoryId": "11233"
