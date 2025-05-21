@@ -21,7 +21,6 @@ def search_ebay_items(query):
         "keywords": safe_query,
         "paginationInput.entriesPerPage": 5,
         "GLOBAL-ID": "EBAY-US",
-        "categoryId": "11233"
     }
 
     try:
