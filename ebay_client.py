@@ -1,51 +1,37 @@
 import requests
-import re
-from config import EBAY_APP_ID
+import logging
+import os
 
-def clean_query(query):
-    # エラーを引き起こす記号を除去し、文字数も制限
-    query = re.sub(r"[\"'&/\\%+]", "", query)
-    return query[:50]
+logger = logging.getLogger(__name__)
 
-def search_ebay_items(query):
-    url = "https://svcs.ebay.com/services/search/FindingService/v1"
+# 必要な環境変数（OAuthトークン）
+EBAY_OAUTH_TOKEN = os.getenv("EBAY_OAUTH_TOKEN")
 
-    safe_query = clean_query(query)
+# eBay Browse API のエンドポイント
+BROWSE_API_URL = "https://api.ebay.com/buy/browse/v1/item_summary/search"
+
+
+def search_ebay_items(query, limit=5):
+    if not EBAY_OAUTH_TOKEN:
+        logger.error("eBay OAuthトークンが設定されていません")
+        return []
+
+    headers = {
+        "Authorization": f"Bearer {EBAY_OAUTH_TOKEN}",
+        "Content-Type": "application/json",
+    }
 
     params = {
-        "OPERATION-NAME": "findItemsByKeywords",
-        "SERVICE-VERSION": "1.0.0",
-        "SECURITY-APPNAME": EBAY_APP_ID,
-        "RESPONSE-DATA-FORMAT": "JSON",
-        "REST-PAYLOAD": "true",
-        "keywords": safe_query,
-        "paginationInput.entriesPerPage": 5,
-        "GLOBAL-ID": "EBAY-US",
+        "q": query,
+        "limit": limit,
     }
 
     try:
-        response = requests.get(url, params=params)
+        response = requests.get(BROWSE_API_URL, headers=headers, params=params)
         response.raise_for_status()
+        data = response.json()
+        return data.get("itemSummaries", [])
+
     except requests.exceptions.HTTPError as e:
-        print(f"[ERROR] Skipped keyword '{safe_query}' due to HTTPError: {e}")
+        logger.error(f"[ERROR] Failed to fetch from Browse API: {e}")
         return []
-    except Exception as e:
-        print(f"[ERROR] Unexpected error for '{safe_query}': {e}")
-        return []
-
-    data = response.json()
-
-    results = []
-    items = data.get("findItemsByKeywordsResponse", [{}])[0].get("searchResult", [{}])[0].get("item", [])
-    for item in items:
-        title = item.get("title", [None])[0]
-        url = item.get("viewItemURL", [None])[0]
-        price = item.get("sellingStatus", [{}])[0].get("currentPrice", [{}])[0].get("__value__")
-
-        results.append({
-            "title": title,
-            "url": url,
-            "price": price
-        })
-
-    return results
